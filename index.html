@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Double-B · Homework Helper</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="theme.css" />
+  </head>
+  <body>
+    <section id="loader" class="loader-screen">
+      <div class="loader-word">LOADING<span class="dots"><i></i><i></i><i></i></span></div>
+      <p id="loadStatus">Finding a little momentum for you</p>
+    </section>
+
+    <main id="app" class="app hidden">
+      <header class="topbar">
+        <a class="brand" href="#"><span class="brand-mark">B</span><span>double-b</span></a>
+        <div class="header-date" id="today"></div>
+        <div class="topbar-actions">
+          <div class="theme-menu" id="themeMenu">
+            <button class="theme-trigger" id="themeTrigger" aria-expanded="false" aria-controls="themeOptions"><i data-lucide="sun"></i><span>Light mode</span><i data-lucide="chevron-down"></i></button>
+            <div class="theme-options hidden" id="themeOptions">
+              <button data-theme="light"><i data-lucide="sun"></i> Light mode</button>
+              <button data-theme="dark"><i data-lucide="moon"></i> Dark mode</button>
+            </div>
+          </div>
+          <button class="profile-button"><span class="profile-orb">CB</span><span>My space</span><i data-lucide="chevron-down"></i></button>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div><p class="eyebrow">YOUR STUDY SPACE</p><h1>Welcome back, Carlos.</h1><p class="subhead">Small steps add up. Here's your plan for a focused afternoon.</p></div>
+        <div class="hero-progress"><div class="ring"><span>2<small>/5</small></span></div><div><strong>Today’s rhythm</strong><p>2 sessions completed</p></div></div>
+      </section>
+
+      <section class="dashboard">
+        <article class="card assignments-card">
+          <div class="card-heading"><div><p class="eyebrow">KEEP TRACK</p><h2>Assignments</h2></div><button class="icon-btn" title="Import from Canvas" id="canvasBtn"><i data-lucide="refresh-cw"></i></button></div>
+          <div id="assignmentList" class="assignment-list"></div>
+          <button class="add-assignment" id="addAssignment"><i data-lucide="plus"></i> Add assignment</button>
+        </article>
+
+        <article class="card quote-card">
+          <div class="card-heading"><div><p class="eyebrow">A LITTLE NUDGE</p><h2>Momentum</h2></div><span class="quote-count" id="quoteCount">1 / 5</span></div>
+          <div class="quote-mark">“</div>
+          <blockquote id="quoteText">The secret of getting ahead is getting started.</blockquote>
+          <p class="quote-author" id="quoteAuthor">— Mark Twain</p>
+          <div class="quote-bottom"><span class="source-tag" id="quoteSource">BrainyQuote</span><div class="quote-nav"><button id="prevQuote"><i data-lucide="arrow-left"></i></button><button id="nextQuote"><i data-lucide="arrow-right"></i></button></div></div>
+        </article>
+
+        <article class="card timer-card">
+          <div class="card-heading"><div><p class="eyebrow">YOUR RHYTHM</p><h2>Focus timer</h2></div><button class="text-button" id="resetTimer">Reset</button></div>
+          <div class="recommendation"><i data-lucide="sparkles"></i><span><strong>Double-B recommends</strong><br><small>40 min focus · 10 min recharge</small></span></div>
+          <div class="timer-settings"><label>Focus <div><input id="focusInput" type="number" min="1" max="120" value="40"><span>min</span></div></label><span class="settings-divider"></span><label>Break <div><input id="breakInput" type="number" min="1" max="60" value="10"><span>min</span></div></label></div>
+          <button id="startSession" class="primary-button"><i data-lucide="play"></i> Begin focus session</button>
+        </article>
+
+        <article class="card challenge-card">
+          <div class="card-heading"><div><p class="eyebrow">MADE FOR TODAY</p><h2>Daily challenges</h2></div><span class="ai-badge"><i data-lucide="sparkles"></i> AI picked</span></div>
+          <p class="challenge-intro">A gentle stretch beyond your usual routine.</p>
+          <div class="challenge-list">
+            <button class="challenge done"><span class="check-circle"><i data-lucide="check"></i></span><span><strong>Clear the runway</strong><small>Put your phone away for one focus block</small></span><i data-lucide="chevron-right"></i></button>
+            <button class="challenge"><span class="challenge-number">02</span><span><strong>Explain it simply</strong><small>Teach one concept back in your own words</small></span><i data-lucide="chevron-right"></i></button>
+            <button class="challenge"><span class="challenge-number">03</span><span><strong>End on a win</strong><small>Finish your easiest task before 5 PM</small></span><i data-lucide="chevron-right"></i></button>
+          </div>
+        </article>
+      </section>
+      <p class="footer-note"><i data-lucide="heart"></i> Double-B is here for your goals, your focus, and your breaks.</p>
+    </main>
+
+    <section id="sessionView" class="session-view hidden">
+      <header class="session-top"><a class="brand light" href="#"><span class="brand-mark">B</span><span>double-b</span></a><span class="session-label"><i data-lucide="circle"></i> Session in progress</span><button id="finishSession" class="finish-button">I'm finished <i data-lucide="arrow-up-right"></i></button></header>
+      <div class="session-content"><p class="session-phase" id="sessionPhase">FOCUS TIME</p><div class="large-time" id="largeTime">40:00</div><p class="session-message" id="sessionMessage">Pick one thing. Give it your full attention.</p><div class="session-dots"><span class="active"></span><span></span><span></span><span></span></div><button id="pauseSession" class="pause-button"><i data-lucide="pause"></i> Pause</button></div>
+    </section>
+
+    <div id="modalBackdrop" class="modal-backdrop hidden"><div class="modal" role="dialog" aria-modal="true"><button class="modal-close" id="closeModal"><i data-lucide="x"></i></button><p class="eyebrow">A MOMENT TO REFLECT</p><h2>You showed up. Nice work.</h2><p>Before you go, give your future self a helpful note.</p><form id="reflectionForm"><label>What did you finish?<textarea required placeholder="I worked on..."></textarea></label><label>What did you do well?<textarea required placeholder="I was proud that..."></textarea></label><label>What needs improvement next time?<textarea required placeholder="Next time, I can..."></textarea></label><button class="primary-button" type="submit">Done <i data-lucide="arrow-right"></i></button></form></div></div>
+    <div id="assignmentModal" class="modal-backdrop hidden"><div class="modal assignment-modal" role="dialog" aria-modal="true"><button class="modal-close" data-close-assignment><i data-lucide="x"></i></button><p class="eyebrow">NEW TASK</p><h2>Add an assignment</h2><form id="assignmentForm"><label>Assignment name<input required name="name" placeholder="e.g. Chapter 4 study guide" /></label><label>Class / period<input required name="className" placeholder="e.g. World History · P3" /></label><label>Due date<input required name="due" type="date" /></label><button class="primary-button" type="submit">Add to checklist <i data-lucide="plus"></i></button></form></div></div>
+    <div id="toast" class="toast"></div>
+    <script src="main.js"></script>
+  </body>
+</html>

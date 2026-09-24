@@ -1,0 +1,59 @@
+/* Calm theme layer and high-density display baseline. */
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+html[data-theme="dark"] {
+  --ink: #f2f1ed;
+  --muted: #a9aaa5;
+  --paper: #171817;
+  --line: #383a37;
+  --blue: #85a2ff;
+  --sky: #232a3b;
+  --green: #22352a;
+  --yellow: #393521;
+  --card: #20211f;
+  color-scheme: dark;
+}
+
+html[data-theme="dark"] .quote-card { background: #232a3b; }
+html[data-theme="dark"] .timer-card { background: #22352a; }
+html[data-theme="dark"] .challenge-card { background: #393521; }
+html[data-theme="dark"] .recommendation { background: #2c4334; border-color: #466a52; }
+html[data-theme="dark"] .recommendation small,
+html[data-theme="dark"] .timer-settings label,
+html[data-theme="dark"] .challenge small,
+html[data-theme="dark"] .challenge-intro { color: #c5cbc4; }
+html[data-theme="dark"] .modal { background: #20211f; }
+html[data-theme="dark"] .modal textarea,
+html[data-theme="dark"] .modal input { background: #171817; border-color: #454743; color: var(--ink); }
+html[data-theme="dark"] .icon-btn,
+html[data-theme="dark"] .quote-nav button { border-color: #555852; color: var(--ink); }
+
+.topbar-actions { display: flex; align-items: center; gap: 22px; }
+.theme-menu { position: relative; }
+.theme-trigger { height: 32px; border: 1px solid var(--line); border-radius: 7px; background: transparent; color: var(--ink); padding: 0 9px; display: flex; align-items: center; gap: 6px; font: 500 11px 'DM Mono'; cursor: pointer; }
+.theme-trigger svg { width: 13px; }
+.theme-trigger svg:last-child { width: 12px; }
+.theme-options { position: absolute; top: 39px; right: 0; z-index: 5; width: 142px; padding: 4px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 12px 24px rgba(0, 0, 0, .12); }
+.theme-options button { border: 0; width: 100%; border-radius: 5px; background: transparent; color: var(--ink); padding: 8px; display: flex; align-items: center; gap: 7px; font: 500 11px 'DM Mono'; cursor: pointer; text-align: left; }
+.theme-options button:hover { background: var(--paper); }
+.theme-options svg { width: 13px; }
+
+/* Less visual noise: tighter cards, smaller gaps, no decorative shadows. */
+.card { border-radius: 10px; box-shadow: none; }
+.dashboard { gap: 12px; }
+.hero { padding: 45px 0 33px; }
+.quote-mark { font-size: 58px; }
+.footer-note { opacity: .75; }
+
+@media (max-width: 760px) {
+  .topbar-actions { gap: 10px; }
+  .theme-trigger span { display: none; }
+  .theme-trigger { width: 32px; justify-content: center; padding: 0; }
+  .theme-trigger svg:last-child { display: none; }
+}

@@ -5,3 +5,5 @@
 5. When things feel finished and the fundamental system of the project is done, run a test on the system and check for any flaws you want to remove.
 6. If there are flaws, reopen the project, revise, build and commit once again.
 7. Make a final commit, save the system where you need to save it, and turn in the project as it is in its finished glory.
+
+

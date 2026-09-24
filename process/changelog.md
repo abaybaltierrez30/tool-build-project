@@ -1,1 +1,2 @@
 1st prompt: All HTML, CSS, and JS files cleared out for room to insert tool build edits.
+2nd prompt: Updated assignments status dropdown to replace Overdue with Not Submitted and automatically trigger Overdue when due date has passed.
