@@ -33,6 +33,12 @@ html[data-theme="dark"] .modal textarea,
 html[data-theme="dark"] .modal input { background: #171817; border-color: #454743; color: var(--ink); }
 html[data-theme="dark"] .icon-btn,
 html[data-theme="dark"] .quote-nav button { border-color: #555852; color: var(--ink); }
+html[data-theme="dark"] .auth-dropdown { background: #20211f; border-color: #383a37; }
+html[data-theme="dark"] .auth-panel input { background: #171817; border-color: #454743; color: var(--ink); }
+html[data-theme="dark"] .auth-tab-btn.active { background: #171817; }
+html[data-theme="dark"] .auth-status-tag { background: #22352a; border-color: #3d6049; color: #7be4a3; }
+html[data-theme="dark"] .outline-button { border-color: #383a37; }
+html[data-theme="dark"] .outline-button:hover { background: #171817; }
 
 .topbar-actions { display: flex; align-items: center; gap: 22px; }
 .theme-menu { position: relative; }

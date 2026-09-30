@@ -1,0 +1,8 @@
+# Private local user data (excluded from commits for privacy)
+user_data.json
+userData/
+*.local.json
+
+# OS and system files
+.DS_Store
+Thumbs.db

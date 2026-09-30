@@ -1,2 +1,3 @@
 1st prompt: All HTML, CSS, and JS files cleared out for room to insert tool build edits.
 2nd prompt: Updated assignments status dropdown to replace Overdue with Not Submitted and automatically trigger Overdue when due date has passed.
+3rd prompt: Added .gitignore and local user_data.json, unauthenticated red notice banner, top-right My Space sign-in/sign-up interface with tab switching, and persistent user account data across reloads with personification.

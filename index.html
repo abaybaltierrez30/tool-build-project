@@ -29,13 +29,80 @@
               <button data-theme="dark"><i data-lucide="moon"></i> Dark mode</button>
             </div>
           </div>
-          <button class="profile-button"><span class="profile-orb">CB</span><span>My space</span><i data-lucide="chevron-down"></i></button>
+          <div class="auth-menu" id="authMenu">
+            <button class="profile-button" id="profileTrigger" aria-expanded="false" aria-controls="authDropdown"><span class="profile-orb" id="profileOrb">CB</span><span id="profileName">My space</span><i data-lucide="chevron-down"></i></button>
+            <div class="auth-dropdown hidden" id="authDropdown">
+              <div id="authForms">
+                <div class="auth-tabs">
+                  <button class="auth-tab-btn active" id="tabLoginBtn" type="button">Log in</button>
+                  <button class="auth-tab-btn" id="tabSignupBtn" type="button">Sign up</button>
+                </div>
+                <form id="loginForm" class="auth-panel">
+                  <label>Username
+                    <input type="text" id="loginUsername" placeholder="Enter username (e.g. carlos)" required autocomplete="username" />
+                  </label>
+                  <label>Password
+                    <input type="password" id="loginPassword" placeholder="Enter password" required autocomplete="current-password" />
+                  </label>
+                  <button class="primary-button" type="submit" id="loginSubmitBtn">Log in</button>
+                  <div class="auth-switch-tab">
+                    <span>Don't have an account?</span>
+                    <button type="button" class="tab-switch-btn" id="switchToSignupBtn">Sign up tab</button>
+                  </div>
+                </form>
+                <form id="signupForm" class="auth-panel hidden">
+                  <label>Email or Username
+                    <input type="text" id="signupEmail" placeholder="Enter email or username" required autocomplete="username" />
+                  </label>
+                  <label>Display Name (Personification)
+                    <input type="text" id="signupName" placeholder="Enter your name (e.g. Carlos)" required autocomplete="name" />
+                  </label>
+                  <label>Password
+                    <input type="password" id="signupPassword" placeholder="Create password" required autocomplete="new-password" />
+                  </label>
+                  <button class="primary-button" type="submit" id="signupSubmitBtn">Create account &amp; Save</button>
+                  <div class="auth-switch-tab">
+                    <span>Already have an account?</span>
+                    <button type="button" class="tab-switch-btn" id="switchToLoginBtn">Log in tab</button>
+                  </div>
+                </form>
+              </div>
+              <div id="authProfile" class="auth-panel hidden">
+                <div class="profile-card-header">
+                  <span class="profile-orb large" id="dropdownOrb">CB</span>
+                  <div>
+                    <strong id="dropdownName">Carlos</strong>
+                    <small id="dropdownEmail">carlos@example.com</small>
+                  </div>
+                </div>
+                <div class="auth-status-tag">
+                  <i data-lucide="shield-check"></i>
+                  <span>Signed in · Data protected in local .gitignore</span>
+                </div>
+                <button class="outline-button" id="logoutBtn" type="button">
+                  <i data-lucide="log-out"></i> Log out
+                </button>
+              </div>
+              <div class="auth-footer-note">
+                <i data-lucide="lock"></i>
+                <span>Private local data · Excluded by .gitignore</span>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 
       <section class="hero">
-        <div><p class="eyebrow">YOUR STUDY SPACE</p><h1>Welcome back, Carlos.</h1><p class="subhead">Small steps add up. Here's your plan for a focused afternoon.</p></div>
-        <div class="hero-progress"><div class="ring"><span>2<small>/5</small></span></div><div><strong>Today’s rhythm</strong><p>2 sessions completed</p></div></div>
+        <div>
+          <div id="authNotice" class="auth-notice-bar" role="alert" tabindex="0" title="Click to sign in">
+            <i data-lucide="alert-circle"></i>
+            <span>You aren't signed in - sign in for a full experience with saved data!</span>
+          </div>
+          <p class="eyebrow">YOUR STUDY SPACE</p>
+          <h1 id="welcomeHeading">Welcome back, Carlos.</h1>
+          <p class="subhead" id="welcomeSubhead">Small steps add up. Here's your plan for a focused afternoon.</p>
+        </div>
+        <div class="hero-progress"><div class="ring"><span id="sessionProgress">2<small>/5</small></span></div><div><strong>Today’s rhythm</strong><p id="sessionCountText">2 sessions completed</p></div></div>
       </section>
 
       <section class="dashboard">
