@@ -38,8 +38,18 @@
                   <button class="auth-tab-btn" id="tabSignupBtn" type="button">Sign up</button>
                 </div>
                 <form id="loginForm" class="auth-panel">
-                  <label>Username
-                    <input type="text" id="loginUsername" placeholder="Enter username (e.g. carlos)" required autocomplete="username" />
+                  <button type="button" class="google-signin-btn" id="googleSignInBtn">
+                    <svg class="google-icon" viewBox="0 0 24 24">
+                      <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3.03h3.88c2.27-2.09 3.665-5.17 3.665-9.12z"/>
+                      <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.03c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.13C3.26 21.41 7.34 24 12 24z"/>
+                      <path fill="#FBBC05" d="M5.28 14.29c-.25-.72-.38-1.49-.38-2.29s.13-1.57.38-2.29V6.58H1.24C.45 8.14 0 9.89 0 12s.45 3.86 1.24 5.42l4.04-3.13z"/>
+                      <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.59 1.24 6.58l4.04 3.13c.95-2.83 3.6-4.96 6.72-4.96z"/>
+                    </svg>
+                    <span>Sign in with Google</span>
+                  </button>
+                  <div class="auth-divider"><span>or log in with username / email</span></div>
+                  <label>Username or Email
+                    <input type="text" id="loginUsername" placeholder="Username (email name) or email" required autocomplete="username" />
                   </label>
                   <label>Password
                     <input type="password" id="loginPassword" placeholder="Enter password" required autocomplete="current-password" />
@@ -51,16 +61,27 @@
                   </div>
                 </form>
                 <form id="signupForm" class="auth-panel hidden">
-                  <label>Email or Username
-                    <input type="text" id="signupEmail" placeholder="Enter email or username" required autocomplete="username" />
+                  <button type="button" class="google-signin-btn" id="googleSignUpBtn">
+                    <svg class="google-icon" viewBox="0 0 24 24">
+                      <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3.03h3.88c2.27-2.09 3.665-5.17 3.665-9.12z"/>
+                      <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.03c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.13C3.26 21.41 7.34 24 12 24z"/>
+                      <path fill="#FBBC05" d="M5.28 14.29c-.25-.72-.38-1.49-.38-2.29s.13-1.57.38-2.29V6.58H1.24C.45 8.14 0 9.89 0 12s.45 3.86 1.24 5.42l4.04-3.13z"/>
+                      <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.59 1.24 6.58l4.04 3.13c.95-2.83 3.6-4.96 6.72-4.96z"/>
+                    </svg>
+                    <span>Sign up with Google</span>
+                  </button>
+                  <div class="auth-divider"><span>or sign up with email</span></div>
+                  <label>Email Address
+                    <input type="email" id="signupEmail" placeholder="e.g. carlos.study@gmail.com" required autocomplete="email" />
+                    <small class="field-hint">Your username will automatically be your email name.</small>
                   </label>
-                  <label>Display Name (Personification)
-                    <input type="text" id="signupName" placeholder="Enter your name (e.g. Carlos)" required autocomplete="name" />
+                  <label>Display Name (Optional)
+                    <input type="text" id="signupName" placeholder="e.g. Carlos" autocomplete="name" />
                   </label>
                   <label>Password
                     <input type="password" id="signupPassword" placeholder="Create password" required autocomplete="new-password" />
                   </label>
-                  <button class="primary-button" type="submit" id="signupSubmitBtn">Create account &amp; Save</button>
+                  <button class="primary-button" type="submit" id="signupSubmitBtn">Send Verification Email &amp; Register</button>
                   <div class="auth-switch-tab">
                     <span>Already have an account?</span>
                     <button type="button" class="tab-switch-btn" id="switchToLoginBtn">Log in tab</button>
@@ -78,6 +99,10 @@
                 <div class="auth-status-tag">
                   <i data-lucide="shield-check"></i>
                   <span>Signed in · Data protected in local .gitignore</span>
+                </div>
+                <div class="auth-verification-tag" id="authVerificationTag">
+                  <i data-lucide="check-check"></i>
+                  <span id="verificationStatusText">User email verified successfully.</span>
                 </div>
                 <button class="outline-button" id="logoutBtn" type="button">
                   <i data-lucide="log-out"></i> Log out
@@ -97,6 +122,10 @@
           <div id="authNotice" class="auth-notice-bar" role="alert" tabindex="0" title="Click to sign in">
             <i data-lucide="alert-circle"></i>
             <span>You aren't signed in - sign in for a full experience with saved data!</span>
+          </div>
+          <div id="verifiedNotice" class="verified-notice-bar hidden" role="status">
+            <i data-lucide="check-circle"></i>
+            <span>User email verified successfully.</span>
           </div>
           <p class="eyebrow">YOUR STUDY SPACE</p>
           <h1 id="welcomeHeading">Welcome back, Carlos.</h1>
@@ -147,6 +176,75 @@
 
     <div id="modalBackdrop" class="modal-backdrop hidden"><div class="modal" role="dialog" aria-modal="true"><button class="modal-close" id="closeModal"><i data-lucide="x"></i></button><p class="eyebrow">A MOMENT TO REFLECT</p><h2>You showed up. Nice work.</h2><p>Before you go, give your future self a helpful note.</p><form id="reflectionForm"><label>What did you finish?<textarea required placeholder="I worked on..."></textarea></label><label>What did you do well?<textarea required placeholder="I was proud that..."></textarea></label><label>What needs improvement next time?<textarea required placeholder="Next time, I can..."></textarea></label><button class="primary-button" type="submit">Done <i data-lucide="arrow-right"></i></button></form></div></div>
     <div id="assignmentModal" class="modal-backdrop hidden"><div class="modal assignment-modal" role="dialog" aria-modal="true"><button class="modal-close" data-close-assignment><i data-lucide="x"></i></button><p class="eyebrow">NEW TASK</p><h2>Add an assignment</h2><form id="assignmentForm"><label>Assignment name<input required name="name" placeholder="e.g. Chapter 4 study guide" /></label><label>Class / period<input required name="className" placeholder="e.g. World History · P3" /></label><label>Due date<input required name="due" type="date" /></label><button class="primary-button" type="submit">Add to checklist <i data-lucide="plus"></i></button></form></div></div>
+
+    <div id="emailVerificationModal" class="modal-backdrop hidden">
+      <div class="modal email-modal" role="dialog" aria-modal="true">
+        <button class="modal-close" id="closeEmailModal" aria-label="Close email"><i data-lucide="x"></i></button>
+        <div class="email-client-header">
+          <div class="email-app-badge"><i data-lucide="mail"></i> Email Verification</div>
+          <p class="email-project-sender">Sender: <strong>verify@doubleb.study</strong></p>
+        </div>
+        <div class="email-envelope-card">
+          <div class="email-meta-row">
+            <span>From:</span>
+            <strong>Double-B Verification &lt;verify@doubleb.study&gt;</strong>
+          </div>
+          <div class="email-meta-row">
+            <span>To:</span>
+            <strong id="emailRecipient">student@example.com</strong>
+          </div>
+          <div class="email-meta-row">
+            <span>Subject:</span>
+            <strong>Confirm your Double-B registration email</strong>
+          </div>
+          <div class="email-meta-divider"></div>
+          <div class="email-body-content">
+            <h3>Confirm your email address</h3>
+            <p>Welcome to Double-B! Please confirm that <strong id="emailConfirmAddress">student@example.com</strong> is the email you will register with.</p>
+            <p>Your username will be registered as: <strong id="emailUsernamePreview">student</strong></p>
+            <div class="email-action-box">
+              <button type="button" class="primary-button email-confirm-btn" id="confirmEmailBtn">
+                <i data-lucide="check-circle"></i> Confirm
+              </button>
+            </div>
+            <p class="email-small-text">Pressing Confirm registers your account and verifies your email address.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="googleAuthModal" class="modal-backdrop hidden">
+      <div class="modal google-modal" role="dialog" aria-modal="true">
+        <button class="modal-close" id="closeGoogleModal" aria-label="Close Google sign-in"><i data-lucide="x"></i></button>
+        <div class="google-modal-header">
+          <svg class="google-icon-large" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3.03h3.88c2.27-2.09 3.665-5.17 3.665-9.12z"/>
+            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.03c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.13C3.26 21.41 7.34 24 12 24z"/>
+            <path fill="#FBBC05" d="M5.28 14.29c-.25-.72-.38-1.49-.38-2.29s.13-1.57.38-2.29V6.58H1.24C.45 8.14 0 9.89 0 12s.45 3.86 1.24 5.42l4.04-3.13z"/>
+            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.59 1.24 6.58l4.04 3.13c.95-2.83 3.6-4.96 6.72-4.96z"/>
+          </svg>
+          <h2>Sign in with Google</h2>
+          <p>Select your Google Account to sign in to Double-B</p>
+        </div>
+        <div class="google-accounts-list">
+          <button type="button" class="google-account-item" id="googleAccountCarlos">
+            <span class="profile-orb">CB</span>
+            <div class="google-acc-info">
+              <strong>Carlos Baltierrez</strong>
+              <small>carlos.baltierrez@gmail.com</small>
+            </div>
+            <i data-lucide="chevron-right"></i>
+          </button>
+          <div class="google-custom-login">
+            <p class="eyebrow">USE ANOTHER GOOGLE ACCOUNT</p>
+            <div class="google-custom-inputs">
+              <input type="email" id="googleCustomEmail" placeholder="your.name@gmail.com" />
+              <button type="button" class="primary-button" id="googleCustomBtn">Continue</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div id="toast" class="toast"></div>
     <script src="main.js"></script>
   </body>

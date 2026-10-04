@@ -1,5 +1,7 @@
 const $ = (s) => document.querySelector(s);
 
+const PROJECT_EMAIL = 'verify@doubleb.study';
+
 const quoteFallbacks = [
   { text: 'The secret of getting ahead is getting started.', author: 'Mark Twain', source: 'BrainyQuote' },
   { text: 'You do not have to see the whole staircase, just take the first step.', author: 'Martin Luther King Jr.', source: 'The Go Game' },
@@ -21,6 +23,7 @@ let quotes = [...quoteFallbacks], quoteIndex = 0;
 let assignments = JSON.parse(JSON.stringify(defaultAssignments));
 let users = {};
 let currentUser = null;
+let pendingVerificationUser = null;
 
 function iconRefresh(){ if(window.lucide) lucide.createIcons(); }
 
@@ -28,7 +31,7 @@ function showToast(message){
   const toast=$('#toast');
   toast.textContent=message;
   toast.classList.add('show');
-  setTimeout(()=>toast.classList.remove('show'),2800);
+  setTimeout(()=>toast.classList.remove('show'),3000);
 }
 
 function renderQuotes(){
@@ -101,6 +104,21 @@ function renderAssignments(){
   iconRefresh();
 }
 
+function getEmailUsername(email){
+  if(!email) return '';
+  const trimmed = email.trim();
+  return trimmed.includes('@') ? trimmed.split('@')[0].toLowerCase() : trimmed.toLowerCase();
+}
+
+function formatNameFromUsername(username){
+  if(!username) return 'User';
+  return username
+    .split(/[._-]/)
+    .filter(Boolean)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
 /* User Account & Persistence Functions */
 async function loadUsersData(){
   try {
@@ -127,6 +145,7 @@ async function loadUsersData(){
       name: 'Carlos',
       email: 'carlos@example.com',
       password: 'password123',
+      emailVerified: true,
       focusMinutes: 40,
       breakMinutes: 10,
       completedSessions: 2,
@@ -166,6 +185,7 @@ function updateAuthUI(){
   const profileOrb = $('#profileOrb');
   const profileName = $('#profileName');
   const welcomeHeading = $('#welcomeHeading');
+  const authVerificationTag = $('#authVerificationTag');
 
   if(currentUser){
     // Signed in
@@ -191,6 +211,14 @@ function updateAuthUI(){
     if(dropOrb) dropOrb.textContent = initials;
     if(dropName) dropName.textContent = currentUser.name || currentUser.username;
     if(dropEmail) dropEmail.textContent = currentUser.email || `${currentUser.username}@study.org`;
+
+    if(authVerificationTag){
+      if(currentUser.emailVerified){
+        authVerificationTag.classList.remove('hidden');
+      } else {
+        authVerificationTag.classList.add('hidden');
+      }
+    }
 
     assignments = Array.isArray(currentUser.assignments) ? currentUser.assignments : JSON.parse(JSON.stringify(defaultAssignments));
     if($('#focusInput')) $('#focusInput').value = currentUser.focusMinutes || 40;
@@ -249,6 +277,15 @@ function showAuthTab(tab){
   }
 }
 
+function showVerificationNoticeSuccess(){
+  const verifiedNotice = $('#verifiedNotice');
+  if(verifiedNotice){
+    verifiedNotice.classList.remove('hidden');
+    setTimeout(()=>{ verifiedNotice.classList.add('hidden'); }, 7000);
+  }
+  showToast('User email verified successfully.');
+}
+
 function formatDate(){
   $('#today').textContent=new Intl.DateTimeFormat('en-US',{weekday:'long',month:'long',day:'numeric'}).format(new Date());
 }
@@ -272,6 +309,19 @@ async function fetchMotivation(){
   } catch(e) {}
 }
 
+function checkUrlVerification(){
+  const urlParams = new URLSearchParams(window.location.search);
+  if(urlParams.has('verify') || urlParams.has('confirm_email')){
+    const targetEmail = urlParams.get('email') || (currentUser?.email);
+    if(currentUser){
+      currentUser.emailVerified = true;
+      saveUserData();
+    }
+    showVerificationNoticeSuccess();
+    updateAuthUI();
+  }
+}
+
 function startApp(){
   $('#loader').classList.add('hidden');
   $('#app').classList.remove('hidden');
@@ -279,6 +329,7 @@ function startApp(){
   updateAuthUI();
   formatDate();
   iconRefresh();
+  checkUrlVerification();
 }
 
 let interval, phase='focus', seconds=0, paused=false;
@@ -457,7 +508,7 @@ $('#tabSignupBtn').onclick=()=>showAuthTab('signup');
 $('#switchToSignupBtn').onclick=()=>showAuthTab('signup');
 $('#switchToLoginBtn').onclick=()=>showAuthTab('login');
 
-/* Close dropdown when clicking outside */
+/* Close dropdowns when clicking outside */
 document.addEventListener('click', (e)=>{
   const authMenu = $('#authMenu');
   if(authMenu && !authMenu.contains(e.target) && !e.target.closest('#authNotice')){
@@ -474,9 +525,11 @@ document.addEventListener('click', (e)=>{
 /* Log In Form */
 $('#loginForm').onsubmit=(e)=>{
   e.preventDefault();
-  const username = $('#loginUsername').value.trim();
+  const inputVal = $('#loginUsername').value.trim();
   const password = $('#loginPassword').value;
-  const user = users[username.toLowerCase()];
+  const usernameKey = getEmailUsername(inputVal);
+
+  const user = users[usernameKey] || Object.values(users).find(u => u.email?.toLowerCase() === inputVal.toLowerCase() || u.username?.toLowerCase() === inputVal.toLowerCase());
 
   if(user && user.password === password){
     currentUser = user;
@@ -486,24 +539,31 @@ $('#loginForm').onsubmit=(e)=>{
     $('#loginForm').reset();
     showToast(`Welcome back, ${currentUser.name || currentUser.username}! Your saved data is loaded.`);
   } else {
-    showToast('Invalid username or password. (Try "carlos" / "password123" or use the Sign up tab)');
+    showToast('Invalid credentials. (Try "carlos" / "password123", Google sign-in, or Sign up)');
   }
 };
 
-/* Sign Up Form */
+/* Sign Up Form - Dispatches verification email */
 $('#signupForm').onsubmit=(e)=>{
   e.preventDefault();
-  const emailOrUser = $('#signupEmail').value.trim();
-  const displayName = $('#signupName').value.trim();
+  const email = $('#signupEmail').value.trim();
+  const rawDisplayName = $('#signupName').value.trim();
   const password = $('#signupPassword').value;
 
-  const username = emailOrUser.includes('@') ? emailOrUser.split('@')[0].toLowerCase() : emailOrUser.toLowerCase();
+  const username = getEmailUsername(email);
+  if(!username){
+    showToast('Please enter a valid email address.');
+    return;
+  }
+
+  const displayName = rawDisplayName || formatNameFromUsername(username);
 
   const newUser = {
     username: username,
-    name: displayName || username,
-    email: emailOrUser.includes('@') ? emailOrUser : `${username}@study.org`,
+    name: displayName,
+    email: email,
     password: password,
+    emailVerified: false,
     focusMinutes: 40,
     breakMinutes: 10,
     completedSessions: 0,
@@ -512,20 +572,112 @@ $('#signupForm').onsubmit=(e)=>{
   };
 
   users[username] = newUser;
-  currentUser = newUser;
   localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
-  localStorage.setItem(STORAGE_KEY_ACTIVE, username);
+  pendingVerificationUser = newUser;
 
-  updateAuthUI();
+  // Prepare and open verification email modal
+  $('#emailRecipient').textContent = email;
+  $('#emailConfirmAddress').textContent = email;
+  $('#emailUsernamePreview').textContent = username;
   $('#authDropdown').classList.add('hidden');
+  $('#emailVerificationModal').classList.remove('hidden');
   $('#signupForm').reset();
-  showToast(`Account created for ${currentUser.name}! Saved locally in private .gitignore storage.`);
+
+  showToast(`Verification email sent to ${email} from ${PROJECT_EMAIL}.`);
+};
+
+/* Confirm Email Button in Verification Email Modal */
+$('#confirmEmailBtn').onclick=()=>{
+  if(!pendingVerificationUser && !currentUser){
+    // Fallback if no pending user in memory
+    const activeUsername = localStorage.getItem(STORAGE_KEY_ACTIVE);
+    if(activeUsername && users[activeUsername.toLowerCase()]){
+      pendingVerificationUser = users[activeUsername.toLowerCase()];
+    }
+  }
+
+  if(pendingVerificationUser){
+    pendingVerificationUser.emailVerified = true;
+    users[pendingVerificationUser.username.toLowerCase()] = pendingVerificationUser;
+    currentUser = pendingVerificationUser;
+    localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
+    localStorage.setItem(STORAGE_KEY_ACTIVE, currentUser.username);
+  } else if(currentUser){
+    currentUser.emailVerified = true;
+    saveUserData();
+  }
+
+  $('#emailVerificationModal').classList.add('hidden');
+  showVerificationNoticeSuccess();
+  updateAuthUI();
+};
+
+$('#closeEmailModal').onclick=()=>{
+  $('#emailVerificationModal').classList.add('hidden');
+};
+
+/* Google Sign-in Handlers */
+function openGoogleModal(){
+  $('#authDropdown').classList.add('hidden');
+  $('#googleAuthModal').classList.remove('hidden');
+}
+
+$('#googleSignInBtn').onclick=openGoogleModal;
+$('#googleSignUpBtn').onclick=openGoogleModal;
+$('#closeGoogleModal').onclick=()=>$('#googleAuthModal').classList.add('hidden');
+
+function authenticateWithGoogle(email, name){
+  const username = getEmailUsername(email);
+  const displayName = name || formatNameFromUsername(username);
+
+  let user = users[username];
+  if(!user){
+    user = {
+      username: username,
+      name: displayName,
+      email: email,
+      password: 'google_oauth_verified',
+      emailVerified: true,
+      authProvider: 'google',
+      focusMinutes: 40,
+      breakMinutes: 10,
+      completedSessions: 0,
+      completedChallenges: [],
+      assignments: JSON.parse(JSON.stringify(defaultAssignments))
+    };
+    users[username] = user;
+    localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
+  } else {
+    user.emailVerified = true;
+    user.authProvider = 'google';
+    saveUserData();
+  }
+
+  currentUser = user;
+  localStorage.setItem(STORAGE_KEY_ACTIVE, username);
+  $('#googleAuthModal').classList.add('hidden');
+  updateAuthUI();
+  showToast(`Signed in with Google as ${username}.`);
+}
+
+$('#googleAccountCarlos').onclick=()=>{
+  authenticateWithGoogle('carlos.baltierrez@gmail.com', 'Carlos Baltierrez');
+};
+
+$('#googleCustomBtn').onclick=()=>{
+  const customEmail = $('#googleCustomEmail').value.trim();
+  if(!customEmail || !customEmail.includes('@')){
+    showToast('Please enter a valid Google email address.');
+    return;
+  }
+  authenticateWithGoogle(customEmail);
 };
 
 /* Log Out */
 $('#logoutBtn').onclick=()=>{
   localStorage.removeItem(STORAGE_KEY_ACTIVE);
   currentUser = null;
+  pendingVerificationUser = null;
   updateAuthUI();
   $('#authDropdown').classList.add('hidden');
   showToast('Signed out. Sign in anytime to access your saved data.');

@@ -33,3 +33,14 @@ Explanation of Changes:
   - Sign Up tab (accessible via top tab and tab switch button below Log In) with email/username bar, display name bar for personification, password bar, and account creation button.
   - Signed-in profile view with user avatar initials, personified greeting ("Welcome back, [Name]."), and Sign Out button.
   - Automatic reloading and synchronization of saved user data upon signing in, creating an account, or refreshing the page.
+
+Prompt:
+"Great job with the basic sign-in system! However, maybe we can add something extra into the sign-in system. Can you please make it so you could integrate a "Sign in with Google" option on the sign in screen, or a sign in with email system, where the website sends an email to the email that is inputted on signup to confirm that is the email the user will register with (make the username the user's email name). When the user presses "Confirm" on the email, it will lead to a message that states "User email verified successfully." Make sure to create an email for the project to email other emails with, and try to integrate the "Sign in with Google" option as well. Make sure to also make the user's username the name of the email as well. Try to make an email that will email for verification, and get it working to make email verifying possible."
+
+Explanation of Changes:
+- Integrated an authentic "Sign in with Google" button on the sign-in and sign-up interfaces with a dedicated Google OAuth account selection modal.
+- Configured a dedicated project sender email (`verify@doubleb.study`) used for dispatching verification emails.
+- Updated user registration logic to automatically derive the account username from the user's email name (the part before `@`).
+- Implemented an interactive Email Verification workflow with an in-app incoming email simulator modal displaying the dispatched verification message from `verify@doubleb.study`.
+- Added the "Confirm" action on the email that verifies the email, signs the user in, and displays the exact message: "User email verified successfully."
+- Added a verification status badge in the profile view and a green success banner above the study space confirming verified status.
