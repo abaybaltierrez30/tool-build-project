@@ -44,3 +44,27 @@ Explanation of Changes:
 - Implemented an interactive Email Verification workflow with an in-app incoming email simulator modal displaying the dispatched verification message from `verify@doubleb.study`.
 - Added the "Confirm" action on the email that verifies the email, signs the user in, and displays the exact message: "User email verified successfully."
 - Added a verification status badge in the profile view and a green success banner above the study space confirming verified status.
+
+Prompt:
+"That email integration didn't work so well, did it? Remove the "Sign in with Google" and email signin options. Ensure that NOT A SINGLE sign of email signup/sign-in stays after your revision."
+
+Explanation of Changes:
+- Completely excised the "Sign in with Google" buttons, Google OAuth selection modal, and Google branding.
+- Removed all email sign-in and email sign-up inputs, labels, and helper texts from the authentication dropdown.
+- Removed the Email Verification simulator modal, project sender address (`verify@doubleb.study`), and confirmation workflows.
+- Removed the email verification banner (`#verifiedNotice`) and verified badge (`#authVerificationTag`).
+- Restored the authentication system to a pure, private username + password layout with persistent local data storage.
+- Verified across all code files (`index.html`, `main.js`, `style.css`, `theme.css`, `user_data.json`) that zero occurrences of email or Google sign-in/up logic remain.
+
+Prompt:
+"Finally, everything's mostly done. So now that we have gotten the major features over with and everything's done enough to be classified a prototype, let's do some feature revisions. In the "Assignments" tab, make it empty by default, with no assignments. It will say "No assignments added yet!" when there are none, but you can always add assignments in there. Also, make the daily challenges random, always-new challenges that aren't checklisted by default until you check them off. Make Double-B recommend 30 minutes of work and 10 minutes of recharge instead of 40 by default as well. Lots of defaults, I know. Remove the refresh button in "Assignments", as Canvas API integration proved unfeasible, and don't forget to also remove the "Today's rhythm" feature in the corner of the webpage, as it is useless. Finally, try making the colors in the UI even MORE muted, and in the "A Moment to Reflect" pop-up in the timer feature, make sure that on the text that says "Before you go, give your future self a helpful note.", add the text "Reflections help the system craft challenges, routines, and recommendations that are more helpful to your way of work. They are recommended, but optional." In that same "A Moment to Reflect" window, when you click the exit (X) button in the corner, don't lead to nothing (black screen), redirect the user back to the homepage. Thanks for all the help, I think I'll stop here."
+
+Explanation of Changes:
+- Empty Assignments State: Made the assignments list empty by default (`defaultAssignments = []`) and implemented an empty state display showing an inbox icon with the exact text "No assignments added yet!", while maintaining full capability to add new assignments via the modal.
+- Random Dynamic Daily Challenges: Created a challenge pool of diverse study/focus challenges. On each load, 3 fresh challenges are randomly selected, assigned sequential indices, and rendered unchecked (`done: false`) by default. Clicking any challenge toggles completion and checks it off.
+- 30 min Work / 10 min Recharge Defaults: Updated the focus recommendation copy to "30 min focus · 10 min recharge", adjusted the default input value and session clock to 30 minutes, and updated the timer reset handler and user creation profile to default to 30 minutes of focus time.
+- Removed Canvas Refresh Button: Removed the `#canvasBtn` refresh button from the assignments card heading and excised its event listener from `main.js`.
+- Removed "Today's rhythm": Completely removed the `#sessionProgress` circular progress ring and sessions-completed widget from the hero section and cleaned up related script references.
+- Even More Muted UI Colors: Further subdued palette contrast in both light and dark modes, softening card background tints (gentle slate, muted sage, and warm oatmeal) and borders to create a distraction-free, calming visual environment.
+- Reflection Modal Guidance Text: Appended "Reflections help the system craft challenges, routines, and recommendations that are more helpful to your way of work. They are recommended, but optional." to the reflection prompt paragraph.
+- Reflection Modal Close Redirect: Fixed the modal close (X) button event handler to explicitly unhide `#app` while hiding `#modalBackdrop` and `#sessionView`, preventing a blank screen and safely redirecting the user back to the homepage.

@@ -8,15 +8,15 @@ html {
 }
 
 html[data-theme="dark"] {
-  --ink: #f2f1ed;
-  --muted: #a9aaa5;
-  --paper: #171817;
-  --line: #383a37;
-  --blue: #85a2ff;
-  --sky: #232a3b;
-  --green: #22352a;
-  --yellow: #393521;
-  --card: #20211f;
+  --ink: #ebefe8;
+  --muted: #a4a9a0;
+  --paper: #191b1a;
+  --line: #363a37;
+  --blue: #8c9bb2;
+  --sky: #202b38;
+  --green: #24332a;
+  --yellow: #332f28;
+  --card: #1f201f;
   color-scheme: dark;
 }
 
@@ -39,13 +39,6 @@ html[data-theme="dark"] .auth-tab-btn.active { background: #171817; }
 html[data-theme="dark"] .auth-status-tag { background: #22352a; border-color: #3d6049; color: #7be4a3; }
 html[data-theme="dark"] .outline-button { border-color: #383a37; }
 html[data-theme="dark"] .outline-button:hover { background: #171817; }
-html[data-theme="dark"] .google-signin-btn { background: #232a3b; color: #f2f1ed; border-color: #383a37; }
-html[data-theme="dark"] .google-signin-btn:hover { background: #2b344a; }
-html[data-theme="dark"] .auth-verification-tag { background: #1a3827; border-color: #2b6140; color: #86e4a8; }
-html[data-theme="dark"] .email-envelope-card { background: #171817; border-color: #383a37; }
-html[data-theme="dark"] .google-account-item { background: #20211f; border-color: #383a37; }
-html[data-theme="dark"] .google-account-item:hover { background: #171817; }
-html[data-theme="dark"] .google-custom-inputs input { background: #171817; border-color: #454743; color: var(--ink); }
 
 .topbar-actions { display: flex; align-items: center; gap: 22px; }
 .theme-menu { position: relative; }

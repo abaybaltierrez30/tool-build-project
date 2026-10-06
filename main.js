@@ -1,31 +1,69 @@
 const $ = (s) => document.querySelector(s);
 
-const PROJECT_EMAIL = 'verify@doubleb.study';
-
 const quoteFallbacks = [
   { text: 'The secret of getting ahead is getting started.', author: 'Mark Twain', source: 'BrainyQuote' },
   { text: 'You do not have to see the whole staircase, just take the first step.', author: 'Martin Luther King Jr.', source: 'The Go Game' },
-  { text: 'It always seems impossible until it’s done.', author: 'Nelson Mandela', source: 'Motivation Grid' },
+  { text: 'It always seems impossible until it\u2019s done.', author: 'Nelson Mandela', source: 'Motivation Grid' },
   { text: 'Start where you are. Use what you have. Do what you can.', author: 'Arthur Ashe', source: 'BrainyQuote' },
-  { text: 'Rest if you must, but don’t quit.', author: 'Edgar A. Guest', source: 'Keep Inspiring Me' }
+  { text: 'Rest if you must, but don\u2019t quit.', author: 'Edgar A. Guest', source: 'Keep Inspiring Me' }
 ];
 
-const defaultAssignments = [
-  {name:'Algebra II problem set', className:'Algebra II · P2', due:'Today', dueDate: new Date().toISOString().split('T')[0], status:'not_submitted'},
-  {name:'The Odyssey reading notes', className:'English · P5', due:'Tomorrow', dueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0], status:'not_submitted'},
-  {name:'Cell structure lab write-up', className:'Biology · P6', due:'Fri, Sep 27', dueDate: '2026-09-27', status:'submitted'}
+const defaultAssignments = [];
+
+const challengePool = [
+  { title: 'Clear the runway', desc: 'Put your phone away for one full focus block' },
+  { title: 'Explain it simply', desc: 'Teach one concept back out loud in your own words' },
+  { title: 'End on a win', desc: 'Finish your easiest pending task before 5 PM' },
+  { title: 'The two-minute start', desc: 'Work on your hardest task for just 2 minutes without stopping' },
+  { title: 'Analog brainstorm', desc: 'Sketch your ideas or formulas on paper before typing' },
+  { title: 'Hydrate & stretch', desc: 'Drink a glass of water and stretch during your recharge break' },
+  { title: 'Zero open tabs', desc: 'Close all unrelated browser tabs before starting your study session' },
+  { title: 'Active recall drill', desc: 'Write down everything you remember about a topic from memory' },
+  { title: 'Single-task sprint', desc: 'Commit to only one assignment tab until the timer chimes' },
+  { title: 'Tidy study station', desc: 'Clear your desk surface except for your notebook and device' },
+  { title: 'Feynman recap', desc: "Summarize today's main lesson in three bullet points" },
+  { title: 'Pre-flight checklist', desc: 'Write down the exact 3 items you want done today' }
 ];
+
+let dailyChallenges = [];
 
 const STORAGE_KEY_USERS = 'doubleB_users';
 const STORAGE_KEY_ACTIVE = 'doubleB_activeUser';
 
 let quotes = [...quoteFallbacks], quoteIndex = 0;
-let assignments = JSON.parse(JSON.stringify(defaultAssignments));
+let assignments = [];
 let users = {};
 let currentUser = null;
-let pendingVerificationUser = null;
 
 function iconRefresh(){ if(window.lucide) lucide.createIcons(); }
+
+function initDailyChallenges(){
+  const shuffled = [...challengePool].sort(() => 0.5 - Math.random());
+  dailyChallenges = shuffled.slice(0, 3).map(c => ({ ...c, done: false }));
+  if (currentUser && Array.isArray(currentUser.dailyChallenges) && currentUser.dailyChallenges.length) {
+    dailyChallenges = currentUser.dailyChallenges.map((challenge, index) => ({
+      ...challenge,
+      done: Boolean(challenge.done),
+      title: challenge.title || challengePool[index % challengePool.length].title,
+      desc: challenge.desc || challengePool[index % challengePool.length].desc,
+    }));
+  }
+  renderChallenges();
+}
+
+function renderChallenges(){
+  const list = $('#challengeList');
+  if(!list) return;
+  list.innerHTML = dailyChallenges.map((c, i) => {
+    const num = String(i + 1).padStart(2, '0');
+    return `<button class="challenge ${c.done ? 'done' : ''}" data-challenge-index="${i}" type="button">
+      ${c.done ? '<span class="check-circle"><i data-lucide="check"></i></span>' : `<span class="challenge-number">${num}</span>`}
+      <span><strong>${c.title}</strong><small>${c.desc}</small></span>
+      <i data-lucide="chevron-right"></i>
+    </button>`;
+  }).join('');
+  iconRefresh();
+}
 
 function showToast(message){
   const toast=$('#toast');
@@ -37,7 +75,7 @@ function showToast(message){
 function renderQuotes(){
   let q=quotes[quoteIndex];
   $('#quoteText').textContent=q.text;
-  $('#quoteAuthor').textContent='— '+q.author;
+  $('#quoteAuthor').textContent='\u2014 '+q.author;
   $('#quoteSource').textContent=q.source;
   $('#quoteCount').textContent=`${quoteIndex+1} / ${quotes.length}`;
 }
@@ -81,6 +119,14 @@ function getEffectiveStatus(a){
 function renderAssignments(){
   const list=$('#assignmentList');
   if(!list) return;
+  if(!assignments || assignments.length === 0){
+    list.innerHTML = `<div class="assignment-empty">
+      <i data-lucide="inbox"></i>
+      <p>No assignments added yet!</p>
+    </div>`;
+    iconRefresh();
+    return;
+  }
   list.innerHTML=assignments.map((a,i)=>{
     const effStatus=getEffectiveStatus(a);
     const isOverdue=effStatus==='overdue';
@@ -102,21 +148,6 @@ function renderAssignments(){
     </div>`;
   }).join('');
   iconRefresh();
-}
-
-function getEmailUsername(email){
-  if(!email) return '';
-  const trimmed = email.trim();
-  return trimmed.includes('@') ? trimmed.split('@')[0].toLowerCase() : trimmed.toLowerCase();
-}
-
-function formatNameFromUsername(username){
-  if(!username) return 'User';
-  return username
-    .split(/[._-]/)
-    .filter(Boolean)
-    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
 }
 
 /* User Account & Persistence Functions */
@@ -143,14 +174,12 @@ async function loadUsersData(){
     users['carlos'] = {
       username: 'carlos',
       name: 'Carlos',
-      email: 'carlos@example.com',
       password: 'password123',
-      emailVerified: true,
-      focusMinutes: 40,
+      focusMinutes: 30,
       breakMinutes: 10,
       completedSessions: 2,
-      completedChallenges: [0],
-      assignments: JSON.parse(JSON.stringify(defaultAssignments))
+      completedChallenges: [],
+      assignments: []
     };
   }
 
@@ -165,14 +194,9 @@ async function loadUsersData(){
 function saveUserData(){
   if(!currentUser) return;
   currentUser.assignments = assignments;
-  currentUser.focusMinutes = Number($('#focusInput')?.value) || 40;
+  currentUser.focusMinutes = Number($('#focusInput')?.value) || 30;
   currentUser.breakMinutes = Number($('#breakInput')?.value) || 10;
-  
-  const completed = [];
-  document.querySelectorAll('.challenge').forEach((c, idx)=>{
-    if(c.classList.contains('done')) completed.push(idx);
-  });
-  currentUser.completedChallenges = completed;
+  currentUser.dailyChallenges = dailyChallenges;
 
   users[currentUser.username.toLowerCase()] = currentUser;
   localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
@@ -185,7 +209,6 @@ function updateAuthUI(){
   const profileOrb = $('#profileOrb');
   const profileName = $('#profileName');
   const welcomeHeading = $('#welcomeHeading');
-  const authVerificationTag = $('#authVerificationTag');
 
   if(currentUser){
     // Signed in
@@ -207,38 +230,14 @@ function updateAuthUI(){
 
     const dropOrb = $('#dropdownOrb');
     const dropName = $('#dropdownName');
-    const dropEmail = $('#dropdownEmail');
+    const dropUsername = $('#dropdownUsername');
     if(dropOrb) dropOrb.textContent = initials;
     if(dropName) dropName.textContent = currentUser.name || currentUser.username;
-    if(dropEmail) dropEmail.textContent = currentUser.email || `${currentUser.username}@study.org`;
+    if(dropUsername) dropUsername.textContent = `@${currentUser.username}`;
 
-    if(authVerificationTag){
-      if(currentUser.emailVerified){
-        authVerificationTag.classList.remove('hidden');
-      } else {
-        authVerificationTag.classList.add('hidden');
-      }
-    }
-
-    assignments = Array.isArray(currentUser.assignments) ? currentUser.assignments : JSON.parse(JSON.stringify(defaultAssignments));
-    if($('#focusInput')) $('#focusInput').value = currentUser.focusMinutes || 40;
+    assignments = Array.isArray(currentUser.assignments) ? currentUser.assignments : [];
+    if($('#focusInput')) $('#focusInput').value = currentUser.focusMinutes || 30;
     if($('#breakInput')) $('#breakInput').value = currentUser.breakMinutes || 10;
-
-    if(Array.isArray(currentUser.completedChallenges)){
-      document.querySelectorAll('.challenge').forEach((c, idx)=>{
-        const isDone = currentUser.completedChallenges.includes(idx);
-        c.classList.toggle('done', isDone);
-        const circle = c.querySelector('.challenge-number, .check-circle');
-        if(circle && isDone){
-          circle.outerHTML = '<span class="check-circle"><i data-lucide="check"></i></span>';
-        }
-      });
-    }
-
-    if(currentUser.completedSessions !== undefined && $('#sessionProgress')){
-      $('#sessionProgress').innerHTML = `${currentUser.completedSessions}<small>/5</small>`;
-      if($('#sessionCountText')) $('#sessionCountText').textContent = `${currentUser.completedSessions} sessions completed`;
-    }
   } else {
     // Guest (Not signed in)
     if(notice) notice.classList.remove('hidden');
@@ -249,8 +248,8 @@ function updateAuthUI(){
     if(profileName) profileName.textContent = 'My space';
     if(welcomeHeading) welcomeHeading.textContent = 'Welcome back, Carlos.';
 
-    assignments = JSON.parse(JSON.stringify(defaultAssignments));
-    if($('#focusInput')) $('#focusInput').value = 40;
+    assignments = [];
+    if($('#focusInput')) $('#focusInput').value = 30;
     if($('#breakInput')) $('#breakInput').value = 10;
   }
 
@@ -277,15 +276,6 @@ function showAuthTab(tab){
   }
 }
 
-function showVerificationNoticeSuccess(){
-  const verifiedNotice = $('#verifiedNotice');
-  if(verifiedNotice){
-    verifiedNotice.classList.remove('hidden');
-    setTimeout(()=>{ verifiedNotice.classList.add('hidden'); }, 7000);
-  }
-  showToast('User email verified successfully.');
-}
-
 function formatDate(){
   $('#today').textContent=new Intl.DateTimeFormat('en-US',{weekday:'long',month:'long',day:'numeric'}).format(new Date());
 }
@@ -309,27 +299,14 @@ async function fetchMotivation(){
   } catch(e) {}
 }
 
-function checkUrlVerification(){
-  const urlParams = new URLSearchParams(window.location.search);
-  if(urlParams.has('verify') || urlParams.has('confirm_email')){
-    const targetEmail = urlParams.get('email') || (currentUser?.email);
-    if(currentUser){
-      currentUser.emailVerified = true;
-      saveUserData();
-    }
-    showVerificationNoticeSuccess();
-    updateAuthUI();
-  }
-}
-
 function startApp(){
   $('#loader').classList.add('hidden');
   $('#app').classList.remove('hidden');
   renderQuotes();
+  initDailyChallenges();
   updateAuthUI();
   formatDate();
   iconRefresh();
-  checkUrlVerification();
 }
 
 let interval, phase='focus', seconds=0, paused=false;
@@ -377,10 +354,10 @@ $('#nextQuote').onclick=()=>{quoteIndex=(quoteIndex+1)%quotes.length;renderQuote
 $('#prevQuote').onclick=()=>{quoteIndex=(quoteIndex-1+quotes.length)%quotes.length;renderQuotes()};
 $('#startSession').onclick=startSession;
 $('#resetTimer').onclick=()=>{
-  $('#focusInput').value=40;
+  $('#focusInput').value=30;
   $('#breakInput').value=10;
   saveUserData();
-  showToast('Your recommended rhythm is restored.');
+  showToast('Your recommended rhythm is restored (30 min focus \u00b7 10 min recharge).');
 };
 $('#pauseSession').onclick=()=>{
   paused=!paused;
@@ -388,7 +365,28 @@ $('#pauseSession').onclick=()=>{
   iconRefresh();
 };
 $('#finishSession').onclick=endSession;
-$('#closeModal').onclick=()=>$('#modalBackdrop').classList.add('hidden');
+function returnToHomepage(){
+  const currentUrl = new URL(window.location.href);
+  const fileName = /index\.html?$/i.test(currentUrl.pathname) ? 'index.html' : 'index.html';
+  const currentPath = currentUrl.pathname.replace(/\/index\.html?$/i, '');
+  const targetUrl = new URL(currentUrl.href);
+
+  if (currentUrl.protocol === 'file:') {
+    targetUrl.pathname = `${currentPath.replace(/\/$/, '')}/index.html`;
+  } else {
+    targetUrl.pathname = `${currentPath.replace(/\/$/, '')}/index.html`;
+  }
+
+  targetUrl.search = '';
+  targetUrl.hash = '';
+  window.location.assign(targetUrl.toString());
+}
+$('#closeModal').onclick=()=>{
+  $('#modalBackdrop').classList.add('hidden');
+  $('#sessionView').classList.add('hidden');
+  $('#app').classList.remove('hidden');
+  returnToHomepage();
+};
 
 $('#reflectionForm').onsubmit=(e)=>{
   e.preventDefault();
@@ -400,7 +398,7 @@ $('#reflectionForm').onsubmit=(e)=>{
     saveUserData();
     updateAuthUI();
   }
-  showToast('Session saved — you completed another step.');
+  showToast('Session saved \u2014 you completed another step.');
   e.target.reset();
 };
 
@@ -460,8 +458,6 @@ $('#assignmentList').onclick=(e)=>{
   }
 };
 
-$('#canvasBtn').onclick=()=>showToast('Connect Canvas through a secure school API to import assignments.');
-
 /* Theme Dropdown */
 $('#themeTrigger').onclick=()=>{
   const options=$('#themeOptions');
@@ -473,16 +469,19 @@ document.querySelectorAll('[data-theme]').forEach(button=>button.onclick=()=>{
   $('#themeOptions').classList.add('hidden');
 });
 
-/* Challenges Click */
-document.querySelectorAll('.challenge').forEach(c=>c.onclick=()=>{
-  c.classList.toggle('done');
-  const first=c.querySelector('.challenge-number');
-  if(first){
-    first.outerHTML='<span class="check-circle"><i data-lucide="check"></i></span>';
-  }
-  saveUserData();
-  iconRefresh();
-});
+/* Challenges Click (event delegation) */
+const challengeContainer = $('#challengeList');
+if(challengeContainer){
+  challengeContainer.onclick = (e) => {
+    const c = e.target.closest('.challenge');
+    if(!c) return;
+    const idx = Number(c.dataset.challengeIndex);
+    if(isNaN(idx) || !dailyChallenges[idx]) return;
+    dailyChallenges[idx].done = !dailyChallenges[idx].done;
+    renderChallenges();
+    saveUserData();
+  };
+}
 
 /* Timer Input Changes */
 $('#focusInput').onchange = saveUserData;
@@ -525,11 +524,10 @@ document.addEventListener('click', (e)=>{
 /* Log In Form */
 $('#loginForm').onsubmit=(e)=>{
   e.preventDefault();
-  const inputVal = $('#loginUsername').value.trim();
+  const username = $('#loginUsername').value.trim().toLowerCase();
   const password = $('#loginPassword').value;
-  const usernameKey = getEmailUsername(inputVal);
 
-  const user = users[usernameKey] || Object.values(users).find(u => u.email?.toLowerCase() === inputVal.toLowerCase() || u.username?.toLowerCase() === inputVal.toLowerCase());
+  const user = users[username];
 
   if(user && user.password === password){
     currentUser = user;
@@ -539,145 +537,55 @@ $('#loginForm').onsubmit=(e)=>{
     $('#loginForm').reset();
     showToast(`Welcome back, ${currentUser.name || currentUser.username}! Your saved data is loaded.`);
   } else {
-    showToast('Invalid credentials. (Try "carlos" / "password123", Google sign-in, or Sign up)');
+    showToast('Invalid username or password. (Try "carlos" / "password123" or use the Sign up tab)');
   }
 };
 
-/* Sign Up Form - Dispatches verification email */
+/* Sign Up Form */
 $('#signupForm').onsubmit=(e)=>{
   e.preventDefault();
-  const email = $('#signupEmail').value.trim();
+  const username = $('#signupUsername').value.trim().toLowerCase();
   const rawDisplayName = $('#signupName').value.trim();
   const password = $('#signupPassword').value;
 
-  const username = getEmailUsername(email);
   if(!username){
-    showToast('Please enter a valid email address.');
+    showToast('Please enter a username.');
     return;
   }
 
-  const displayName = rawDisplayName || formatNameFromUsername(username);
+  if(users[username]){
+    showToast('Username already taken. Please choose another username.');
+    return;
+  }
+
+  const displayName = rawDisplayName || (username.charAt(0).toUpperCase() + username.slice(1));
 
   const newUser = {
     username: username,
     name: displayName,
-    email: email,
     password: password,
-    emailVerified: false,
-    focusMinutes: 40,
+    focusMinutes: 30,
     breakMinutes: 10,
     completedSessions: 0,
     completedChallenges: [],
-    assignments: JSON.parse(JSON.stringify(defaultAssignments))
+    assignments: []
   };
 
   users[username] = newUser;
+  currentUser = newUser;
   localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
-  pendingVerificationUser = newUser;
-
-  // Prepare and open verification email modal
-  $('#emailRecipient').textContent = email;
-  $('#emailConfirmAddress').textContent = email;
-  $('#emailUsernamePreview').textContent = username;
-  $('#authDropdown').classList.add('hidden');
-  $('#emailVerificationModal').classList.remove('hidden');
-  $('#signupForm').reset();
-
-  showToast(`Verification email sent to ${email} from ${PROJECT_EMAIL}.`);
-};
-
-/* Confirm Email Button in Verification Email Modal */
-$('#confirmEmailBtn').onclick=()=>{
-  if(!pendingVerificationUser && !currentUser){
-    // Fallback if no pending user in memory
-    const activeUsername = localStorage.getItem(STORAGE_KEY_ACTIVE);
-    if(activeUsername && users[activeUsername.toLowerCase()]){
-      pendingVerificationUser = users[activeUsername.toLowerCase()];
-    }
-  }
-
-  if(pendingVerificationUser){
-    pendingVerificationUser.emailVerified = true;
-    users[pendingVerificationUser.username.toLowerCase()] = pendingVerificationUser;
-    currentUser = pendingVerificationUser;
-    localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
-    localStorage.setItem(STORAGE_KEY_ACTIVE, currentUser.username);
-  } else if(currentUser){
-    currentUser.emailVerified = true;
-    saveUserData();
-  }
-
-  $('#emailVerificationModal').classList.add('hidden');
-  showVerificationNoticeSuccess();
-  updateAuthUI();
-};
-
-$('#closeEmailModal').onclick=()=>{
-  $('#emailVerificationModal').classList.add('hidden');
-};
-
-/* Google Sign-in Handlers */
-function openGoogleModal(){
-  $('#authDropdown').classList.add('hidden');
-  $('#googleAuthModal').classList.remove('hidden');
-}
-
-$('#googleSignInBtn').onclick=openGoogleModal;
-$('#googleSignUpBtn').onclick=openGoogleModal;
-$('#closeGoogleModal').onclick=()=>$('#googleAuthModal').classList.add('hidden');
-
-function authenticateWithGoogle(email, name){
-  const username = getEmailUsername(email);
-  const displayName = name || formatNameFromUsername(username);
-
-  let user = users[username];
-  if(!user){
-    user = {
-      username: username,
-      name: displayName,
-      email: email,
-      password: 'google_oauth_verified',
-      emailVerified: true,
-      authProvider: 'google',
-      focusMinutes: 40,
-      breakMinutes: 10,
-      completedSessions: 0,
-      completedChallenges: [],
-      assignments: JSON.parse(JSON.stringify(defaultAssignments))
-    };
-    users[username] = user;
-    localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
-  } else {
-    user.emailVerified = true;
-    user.authProvider = 'google';
-    saveUserData();
-  }
-
-  currentUser = user;
   localStorage.setItem(STORAGE_KEY_ACTIVE, username);
-  $('#googleAuthModal').classList.add('hidden');
+
   updateAuthUI();
-  showToast(`Signed in with Google as ${username}.`);
-}
-
-$('#googleAccountCarlos').onclick=()=>{
-  authenticateWithGoogle('carlos.baltierrez@gmail.com', 'Carlos Baltierrez');
-};
-
-$('#googleCustomBtn').onclick=()=>{
-  const customEmail = $('#googleCustomEmail').value.trim();
-  if(!customEmail || !customEmail.includes('@')){
-    showToast('Please enter a valid Google email address.');
-    return;
-  }
-  authenticateWithGoogle(customEmail);
+  $('#authDropdown').classList.add('hidden');
+  $('#signupForm').reset();
+  showToast(`Account created for ${currentUser.name}! Saved locally in private .gitignore storage.`);
 };
 
 /* Log Out */
 $('#logoutBtn').onclick=()=>{
   localStorage.removeItem(STORAGE_KEY_ACTIVE);
   currentUser = null;
-  pendingVerificationUser = null;
   updateAuthUI();
   $('#authDropdown').classList.add('hidden');
   showToast('Signed out. Sign in anytime to access your saved data.');
@@ -690,3 +598,4 @@ $('#logoutBtn').onclick=()=>{
   await fetchMotivation();
   setTimeout(startApp, 1400);
 })();
+
