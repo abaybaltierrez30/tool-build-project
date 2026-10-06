@@ -1,6 +1,5 @@
 1st prompt: All HTML, CSS, and JS files cleared out for room to insert tool build edits.
-2nd prompt: Updated assignments status dropdown to replace Overdue with Not Submitted and automatically trigger Overdue when due date has passed.
-3rd prompt: Added .gitignore and local user_data.json, unauthenticated red notice banner, top-right My Space sign-in/sign-up interface with tab switching, and persistent user account data across reloads with personification.
-4th prompt: Integrated Google Sign-In with dedicated OAuth account selection, established project email (verify@doubleb.study) for verification dispatch, set usernames to email names, and implemented email confirmation workflow with "User email verified successfully." message.
-5th prompt: Completely removed all traces of "Sign in with Google", email sign-in, email signup, email verification modal, and project email addresses; reverted to clean local username + password authentication with full data persistence.
-6th prompt: Refined prototype features: emptied default assignments with empty state messaging ("No assignments added yet!"), generated random uncompleted daily challenges from pool, updated Double-B timer recommendation and defaults to 30 min focus / 10 min recharge, removed Canvas import button and Today's rhythm widget, applied even more muted UI color styling, added explanatory reflection guidance text, and fixed reflection close button to redirect to homepage.
+2nd prompt: The webpage has been loaded for the first time. The fundamental features of the system have been added. From here, most changes to the system will be altering the way features work in the project. Next prompt focus: Minimalizing the page, enabling a "Dark Mode" feature, and put HiDPI scaling.
+3rd prompt: Not many changes, aside from HiDPI scaling and dark mode addition. Codex credit limit reached.
+4th prompt: Added safe, private, and secure sign-in capabilities, so users can have a proper, fixed way of having personalized data for their sessions in double-b compared to the previous commit.
+5th prompt:
